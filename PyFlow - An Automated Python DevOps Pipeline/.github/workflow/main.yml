@@ -1,1 +1,35 @@
+name: Python DevOps Pipeline
 
+on: [push]
+
+jobs:
+  devops-cycle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: pip install flask pytest
+
+      - name: Run Tests (Test Phase)
+        run: pytest test_app.py
+
+      - name: Login to Docker Hub
+        if: success() # Only run if tests pass
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push (Release Phase)
+        if: success()
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/python-devops-app:latest
