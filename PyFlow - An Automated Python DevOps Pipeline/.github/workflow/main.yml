@@ -17,8 +17,10 @@ jobs:
       - name: Install Dependencies
         run: pip install flask pytest
 
-      - name: Run Tests (Test Phase)
-        run: pytest test_app.py
+      - name: Run Quality Test
+        run: |
+          pip install pytest flask
+          pytest test_app.py
 
       - name: Login to Docker Hub
         if: success() # Only run if tests pass
